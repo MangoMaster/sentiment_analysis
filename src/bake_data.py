@@ -127,8 +127,10 @@ def tf_idf():
     # Convert test text to bags-of-words
     with open(texts_test_file_path, 'rb') as texts_test_file:
         texts_test = pickle.load(texts_test_file)
+    # TODO: fix test matrix: use train word_index but new count
     matrix_test = tokenizer.texts_to_matrix(texts_test, mode="tfidf")
     # Save test matrix
+    print("document count: ", tokenizer.document_count)
     print(matrix_test.shape)
     with open(output_test_file_path, 'wb') as output_file:
         np.save(output_file, matrix_test)
@@ -180,25 +182,78 @@ def regression(file_name_suffix):
         np.save(output_file, regression)
 
 
+def collect_word2vec():
+    """
+    Convert word2vec to word2index dictionary, using pickle to save, 
+                    and index2vec matrix, using np to save.
+    """
+    # Generate file path
+    word2vec_file_path = os.path.join(
+        os.path.pardir, "data", "sgns.sogounews.bigram-char")
+    word2index_dict_file_path = os.path.join(
+        os.path.pardir, "data", "word2vec_dict")
+    index2vec_mat_file_path = os.path.join(
+        os.path.pardir, "data", "word2vec_matrix")
+    # Convert word2vec to word2index dictionary and index2vec matrix.
+    with open(word2vec_file_path, 'r') as word2vec_file:
+        shape = [int(s) for s in re.findall(r'\d+', word2vec_file.readline())]
+        word2index_dict = {}
+        index2vec_matrix = np.zeros(shape)
+        index = 0
+        for line in word2vec_file:
+            line_list = line.split(' ')
+            if line_list[0]:  # remove empty string
+                word2index_dict[line_list[0]] = index
+                index2vec_matrix[index] = np.array(line_list[1:-1])  # pop '\n'
+                index += 1
+            else:
+                # Remove last empty row in index2vec_matrix
+                index2vec_matrix = np.delete(index2vec_matrix, -1, axis=0)
+    # Save dict and matrix
+    print(index2vec_matrix.shape)
+    print(len(word2index_dict))
+    with open(word2index_dict_file_path, 'wb') as word2index_dict_file:
+        pickle.dump(word2index_dict, word2index_dict_file)
+    with open(index2vec_mat_file_path, 'wb') as index2vec_mat_file:
+        np.save(index2vec_mat_file, index2vec_matrix)
+
+
+def verify_word2vec():
+    """
+    Verify word2vec data is properly collected and saved.
+    """
+    # Generate file path
+    word2index_dict_file_path = os.path.join(
+        os.path.pardir, "data", "word2vec_dict")
+    index2vec_mat_file_path = os.path.join(
+        os.path.pardir, "data", "word2vec_matrix")
+    # Read data from files
+    with open(word2index_dict_file_path, 'rb') as word2index_dict_file:
+        word2index_dict = pickle.load(word2index_dict_file)
+    with open(index2vec_mat_file_path, 'rb') as index2vec_mat_file:
+        index2vec_matrix = np.load(index2vec_mat_file)
+    print(word2index_dict)
+    print(index2vec_matrix)
+
+
 if __name__ == "__main__":
-    # Demo data
-    file_name_suffix = "demo"
-    collect_data("sinanews.demo", file_name_suffix)
-    verify_data(file_name_suffix)
-    classification(file_name_suffix)
-    regression(file_name_suffix)
     # Train data
     file_name_suffix = "train"
     collect_data("sinanews.train", file_name_suffix)
     verify_data(file_name_suffix)
+    # Train label
     classification(file_name_suffix)
     regression(file_name_suffix)
     # Test data
     file_name_suffix = "test"
     collect_data("sinanews.test", file_name_suffix)
     verify_data(file_name_suffix)
+    # Test label
     classification(file_name_suffix)
     regression(file_name_suffix)
-    # Train
+    # Train texts
     bags_of_words()
     tf_idf()
+    # word2vec
+    collect_word2vec()
+    verify_word2vec()
