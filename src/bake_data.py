@@ -84,21 +84,15 @@ def bags_of_words():
     tokenizer.fit_on_texts(texts_train)
     matrix_train = tokenizer.texts_to_matrix(texts_train, mode="freq")
     # Save train matrix
-    print(tokenizer.word_index)
     print(matrix_train.shape)
-    print(matrix_train)
     with open(output_train_file_path, 'wb') as output_file:
         np.save(output_file, matrix_train)
     # Convert test text to bags-of-words
     with open(texts_test_file_path, 'rb') as texts_test_file:
         texts_test = pickle.load(texts_test_file)
-    # Remove words that in test but not in train
-    tokenizer.num_words = len(tokenizer.word_index) + 1
-    tokenizer.fit_on_texts(texts_test)
     matrix_test = tokenizer.texts_to_matrix(texts_test, mode="freq")
     # Save test matrix
     print(matrix_test.shape)
-    print(matrix_test)
     with open(output_test_file_path, 'wb') as output_file:
         np.save(output_file, matrix_test)
 
@@ -127,21 +121,15 @@ def tf_idf():
     matrix_train = tokenizer.texts_to_matrix(texts_train, mode="tfidf")
     # Save train matrix
     print("document count: ", tokenizer.document_count)
-    print(tokenizer.word_index)
     print(matrix_train.shape)
-    print(matrix_train)
     with open(output_train_file_path, 'wb') as output_file:
         np.save(output_file, matrix_train)
     # Convert test text to bags-of-words
     with open(texts_test_file_path, 'rb') as texts_test_file:
         texts_test = pickle.load(texts_test_file)
-    # Remove words that in test but not in train
-    tokenizer.num_words = len(tokenizer.word_index) + 1
-    tokenizer.fit_on_texts(texts_test)
     matrix_test = tokenizer.texts_to_matrix(texts_test, mode="tfidf")
     # Save test matrix
     print(matrix_test.shape)
-    print(matrix_test)
     with open(output_test_file_path, 'wb') as output_file:
         np.save(output_file, matrix_test)
 
