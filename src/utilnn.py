@@ -4,11 +4,14 @@ import keras
 import keras.backend as K
 from sklearn.metrics import precision_score, recall_score
 
+
 class Fscore(keras.callbacks.Callback):
     """
     Calculate fscore using callback.
     See https://stackoverflow.com/a/50648424 for details.
+    Calculate metrics(precision, recall) for each label, and find their unweighted mean.
     """
+
     def on_epoch_end(self, batch, logs={}):
         y_pred = np.asarray(self.model.predict(self.validation_data[0]))
         y_true = self.validation_data[1]
@@ -16,8 +19,10 @@ class Fscore(keras.callbacks.Callback):
         y_true = np.argmax(y_true, axis=1)
         y_pred = np.argmax(y_pred, axis=1)
         # Calculate precision and recall
-        precision = precision_score(y_true, y_pred, average='micro')
-        recall = recall_score(y_true, y_pred, average='micro')
+        precision = precision_score(y_true, y_pred, average='macro')
+        recall = recall_score(y_true, y_pred, average='macro')
+        self.precision = precision
+        self.recall = recall
         self.fscore = 2 * (precision * recall) / \
             (precision + recall + K.epsilon())
         return
