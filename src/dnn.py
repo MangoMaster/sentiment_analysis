@@ -2,7 +2,7 @@ import os
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 from utilnn import Fscore, coef
 
 
@@ -43,15 +43,16 @@ def dnn(texts_prefix, labels_prefix):
     else:
         raise ValueError("labels_prefix doesn't exist.")
     # optimizer
-    optimizer = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    # optimizer = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+    optimizer = Adam()
     # compile
     model.compile(loss=loss, optimizer=optimizer, metrics=['accuracy', coef])
     # train
     fscore = Fscore()
-    model.fit(texts_train, labels_train, epochs=20, batch_size=128,
+    model.fit(texts_train, labels_train, epochs=60, batch_size=256,
               validation_data=(texts_test, labels_test), callbacks=[fscore])
     # evaluate
-    score = model.evaluate(texts_test, labels_test, batch_size=128)
+    score = model.evaluate(texts_test, labels_test, batch_size=256)
     print("Eval: loss: %.4f - acc - %.4f - fscore: %.4f - coef: %.4f" %
           (score[0], score[1], fscore.get_data(), score[2]))
 
