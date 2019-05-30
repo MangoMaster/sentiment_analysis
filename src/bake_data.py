@@ -137,7 +137,7 @@ def tf_idf():
         np.save(output_file, matrix_test)
 
 
-def word_embedding(max_sequence_length=300):
+def word_embedding(max_sequence_length=350):
     """
     Convert text data to word-embedding, using np to save.
     w(i)(j)表示第i个文档中第j个词在word_embedding词表中对应的index.
@@ -162,7 +162,7 @@ def word_embedding(max_sequence_length=300):
         sequences_train, maxlen=max_sequence_length)
     # Save train sequences
     print(len(tokenizer.word_index))
-    print(len(sequences_train))
+    print(sequences_train.shape)
     with open(output_train_file_path, 'wb') as output_file:
         np.save(output_file, np.asarray(sequences_train))
     # Convert test text to word-embedding
@@ -171,7 +171,7 @@ def word_embedding(max_sequence_length=300):
     sequences_test = tokenizer.texts_to_sequences(texts_test)
     sequences_test = pad_sequences(sequences_test, maxlen=max_sequence_length)
     # Save test sequences
-    print(len(sequences_test))
+    print(sequences_test.shape)
     with open(output_test_file_path, 'wb') as output_file:
         np.save(output_file, np.asarray(sequences_test))
 

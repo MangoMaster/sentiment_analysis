@@ -44,6 +44,7 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     model.add(Dense(64, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(outputs_train.shape[1], activation='softmax'))
+    print(model.summary())
     # compile
     model.compile(loss=loss, optimizer='adam', metrics=['accuracy', coef])
     # train

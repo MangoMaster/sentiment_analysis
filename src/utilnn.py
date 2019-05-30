@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import keras
 import keras.backend as K
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 class Fscore(keras.callbacks.Callback):
@@ -19,12 +19,9 @@ class Fscore(keras.callbacks.Callback):
         y_true = np.argmax(y_true, axis=1)
         y_pred = np.argmax(y_pred, axis=1)
         # Calculate precision and recall
-        precision = precision_score(y_true, y_pred, average='macro')
-        recall = recall_score(y_true, y_pred, average='macro')
-        self.precision = precision
-        self.recall = recall
-        self.fscore = 2 * (precision * recall) / \
-            (precision + recall + K.epsilon())
+        self.precision = precision_score(y_true, y_pred, average='macro')
+        self.recall = recall_score(y_true, y_pred, average='macro')
+        self.fscore = f1_score(y_true, y_pred, average='macro')
         return
 
     def get_data(self):

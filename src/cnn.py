@@ -47,19 +47,20 @@ def cnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
                                 input_length=inputs_train.shape[1], trainable=False)
     model = Sequential()
     model.add(embedding_layer)
-    model.add(Conv1D(inputs_train.shape[1], 3, activation='relu'))
+    model.add(Conv1D(128, 3, activation='relu'))
     model.add(MaxPooling1D(3))
     model.add(Dropout(0.25))
-    model.add(Conv1D(inputs_train.shape[1], 3, activation='relu'))
+    model.add(Conv1D(64, 3, activation='relu'))
     model.add(MaxPooling1D(3))
     model.add(Dropout(0.25))
-    model.add(Conv1D(inputs_train.shape[1], 3, activation='relu'))
+    model.add(Conv1D(32, 3, activation='relu'))
     model.add(MaxPooling1D(3))
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(outputs_train.shape[1], activation='softmax'))
+    print(model.summary())
     # compile
     model.compile(loss=loss, optimizer='adam', metrics=['accuracy', coef])
     # train
@@ -81,4 +82,4 @@ if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("regression")
     cnn(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss='mean_squre_error')
+        loss='mean_squared_error')
