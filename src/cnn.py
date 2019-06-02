@@ -3,7 +3,8 @@ import functools
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Embedding, Conv1D, MaxPooling1D, Flatten, Dense, Dropout
-from utilnn import Fscore, coef
+from keras.callbacks import EarlyStopping
+from utilnn import accuracy, fscore, coef
 
 
 def load_data(labels_prefix):
@@ -41,10 +42,17 @@ def cnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embe
                             1 - initialize with word_embedding_matrix, trainable=True
                             2 - initialize with random matrix, trainable=True
     """
+    # Load word-embedding matrix
     word_embedding_matrix_file_path = os.path.join(
         os.path.pardir, "data", "word-embedding_matrix")
     with open(word_embedding_matrix_file_path, 'rb') as word_embedding_matrix_file:
         word_embedding_matrix = np.load(word_embedding_matrix_file)
+    # Split to train-set and validation-set
+    split_at = len(inputs_train) - len(inputs_train) * 2 // 10
+    (inputs_train, inputs_validation) = \
+        (inputs_train[:split_at], inputs_train[split_at:])
+    (outputs_train, outputs_validation) = \
+        (outputs_train[:split_at], outputs_train[split_at:])
     # Build CNN model
     if train_embedding == 0:
         embedding_layer = Embedding(word_embedding_matrix.shape[0], word_embedding_matrix.shape[1], weights=[word_embedding_matrix],
@@ -74,15 +82,26 @@ def cnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embe
     model.add(Dense(outputs_train.shape[1], activation='softmax'))
     print(model.summary())
     # compile
-    model.compile(loss=loss, optimizer='adam', metrics=['accuracy', coef])
+    model.compile(loss=loss, optimizer='adam', metrics=['accuracy'])
     # train
-    fscore = Fscore()
-    model.fit(inputs_train, outputs_train, epochs=15, batch_size=128,
-              validation_data=(inputs_test, outputs_test), callbacks=[fscore])
+    if loss == 'categorical_crossentropy':
+        early_stopping = EarlyStopping(
+            min_delta=0.003, patience=5, restore_best_weights=True)
+    elif loss == 'mean_squared_error':
+        early_stopping = EarlyStopping(
+            min_delta=0.0003, patience=5, restore_best_weights=True)
+    else:
+        raise ValueError(
+            "loss should be 'categorical_crossentropy' or 'mean_squared_error'.")
+    model.fit(inputs_train, outputs_train, epochs=100, batch_size=128,
+              validation_data=(inputs_validation, outputs_validation), callbacks=[early_stopping])
     # evaluate
-    score = model.evaluate(inputs_test, outputs_test, batch_size=128)
-    print("Eval: loss: %.4f - acc - %.4f - fscore: %.4f - coef: %.4f" %
-          (score[0], score[1], fscore.get_data(), score[2]))
+    outputs_test_pred = np.asarray(model.predict(inputs_test))
+    acc_eval = accuracy(outputs_test, outputs_test_pred)
+    fscore_eval = fscore(outputs_test, outputs_test_pred)
+    coef_eval = coef(outputs_test, outputs_test_pred)
+    print("Evaluation: acc - %.4f - fscore: %.4f - coef: %.4f - pvalue: %.4f" %
+          (acc_eval, fscore_eval, coef_eval[0], coef_eval[1]))
 
 
 cnn_static = functools.partial(cnn, train_embedding=0)

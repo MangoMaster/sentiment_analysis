@@ -56,9 +56,11 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     model.compile(loss=loss, optimizer='adam', metrics=['accuracy'])
     # train
     if loss == 'categorical_crossentropy':
-        early_stopping = EarlyStopping(min_delta=0.001, patience=5)
+        early_stopping = EarlyStopping(
+            min_delta=0.001, patience=5, restore_best_weights=True)
     elif loss == 'mean_squared_error':
-        early_stopping = EarlyStopping(min_delta=0.0003, patience=5)
+        early_stopping = EarlyStopping(
+            min_delta=0.0003, patience=5, restore_best_weights=True)
     else:
         raise ValueError(
             "loss should be 'categorical_crossentropy' or 'mean_squared_error'.")
