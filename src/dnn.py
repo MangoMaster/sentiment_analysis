@@ -36,7 +36,7 @@ def load_data(texts_prefix, labels_prefix):
 def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     """
     Fully connected neural network.
-    @param loss: 'classification' or 'regression'
+    @param loss: 'categorical_crossentropy' or 'mean_squared_error'
     """
     # Split to train-set and validation-set
     split_at = len(inputs_train) - len(inputs_train) * 2 // 10
@@ -44,15 +44,6 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
         (inputs_train[:split_at], inputs_train[split_at:])
     (outputs_train, outputs_validation) = \
         (outputs_train[:split_at], outputs_train[split_at:])
-    # Modify nn according to loss
-    if loss == "classification":
-        loss = 'categorical_crossentropy'
-        early_stopping = EarlyStopping(min_delta=0.001, patience=5)
-    elif loss == "regression":
-        loss = 'mean_squared_error'
-        early_stopping = EarlyStopping(min_delta=0.0003, patience=5)
-    else:
-        raise ValueError("loss should be classification or regression.")
     # Build DNN model
     model = Sequential()
     model.add(Dense(64, activation='relu', input_dim=inputs_train.shape[1]))
@@ -64,6 +55,13 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     # compile
     model.compile(loss=loss, optimizer='adam', metrics=['accuracy'])
     # train
+    if loss == 'categorical_crossentropy':
+        early_stopping = EarlyStopping(min_delta=0.001, patience=5)
+    elif loss == 'mean_squared_error':
+        early_stopping = EarlyStopping(min_delta=0.0003, patience=5)
+    else:
+        raise ValueError(
+            "loss should be 'categorical_crossentropy' or 'mean_squared_error'.")
     model.fit(inputs_train, outputs_train, epochs=100, batch_size=256,
               validation_data=(inputs_validation, outputs_validation), callbacks=[early_stopping])
     # evaluate
@@ -79,19 +77,19 @@ if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "classification")
     dnn(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss="classification")
+        loss='categorical_crossentropy')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "regression")
     dnn(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss="regression")
+        loss='mean_squared_error')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "classification")
     dnn(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss="classification")
+        loss='categorical_crossentropy')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "regression")
     dnn(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss="regression")
+        loss='mean_squared_error')
