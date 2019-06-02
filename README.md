@@ -19,7 +19,7 @@ Python3 (Python 3.5.2)
 cd ./src
 python3 ./test_model.py
 ```
-若希望预处理数据或训练模型，请将给定的新浪新闻和词向量(https://cloud.tsinghua.edu.cn/f/7928cb6c3db34c67b1b0/)放入data文件夹下，然后运行：
+若希望预处理数据或训练模型，请将给定的新浪新闻和词向量(https://cloud.tsinghua.edu.cn/f/7928cb6c3db34c67b1b0/ )放入data文件夹下，然后运行：
 ```sh
 cd ./src
 python3 ./bake_data.py
