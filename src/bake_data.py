@@ -303,13 +303,13 @@ def verify_word2vec():
 
 
 if __name__ == "__main__":
-    # Demo data
-    file_name_suffix = "demo"
-    collect_data("sinanews.train", file_name_suffix)
-    verify_data(file_name_suffix)
-    # Demo label
-    classification(file_name_suffix)
-    regression(file_name_suffix)
+    # # Demo data
+    # file_name_suffix = "demo"
+    # collect_data("sinanews.train", file_name_suffix)
+    # verify_data(file_name_suffix)
+    # # Demo label
+    # classification(file_name_suffix)
+    # regression(file_name_suffix)
     # Train data
     file_name_suffix = "train"
     collect_data("sinanews.train", file_name_suffix)
