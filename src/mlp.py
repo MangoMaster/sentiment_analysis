@@ -33,7 +33,7 @@ def load_data(texts_prefix, labels_prefix):
     return (inputs_train, outputs_train, inputs_test, outputs_test)
 
 
-def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
+def mlp(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     """
     Fully connected neural network.
     @param loss: 'categorical_crossentropy' or 'mean_squared_error'
@@ -44,7 +44,7 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
         (inputs_train[:split_at], inputs_train[split_at:])
     (outputs_train, outputs_validation) = \
         (outputs_train[:split_at], outputs_train[split_at:])
-    # Build DNN model
+    # Build MLP model
     model = Sequential()
     model.add(Dense(64, activation='relu', input_dim=inputs_train.shape[1]))
     model.add(Dropout(0.5))
@@ -78,20 +78,20 @@ def dnn(inputs_train, outputs_train, inputs_test, outputs_test, loss):
 if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "classification")
-    dnn(inputs_train, outputs_train, inputs_test, outputs_test,
+    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
         loss='categorical_crossentropy')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "regression")
-    dnn(inputs_train, outputs_train, inputs_test, outputs_test,
+    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
         loss='mean_squared_error')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "classification")
-    dnn(inputs_train, outputs_train, inputs_test, outputs_test,
+    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
         loss='categorical_crossentropy')
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "regression")
-    dnn(inputs_train, outputs_train, inputs_test, outputs_test,
+    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
         loss='mean_squared_error')
