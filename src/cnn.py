@@ -34,6 +34,12 @@ def load_data(labels_prefix):
     return (inputs_train, outputs_train, inputs_test, outputs_test)
 
 
+def save_model(model, model_file_name):
+    model_file_path = os.path.join(
+        os.path.pardir, "models", model_file_name + ".h5")
+    model.save(model_file_path)
+
+
 def cnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embedding):
     """
     Convolutional neural network.
@@ -102,6 +108,8 @@ def cnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embe
     coef_eval = coef(outputs_test, outputs_test_pred)
     print("Evaluation: acc - %.4f - fscore: %.4f - coef: %.4f - pvalue: %.4f" %
           (acc_eval, fscore_eval, coef_eval[0], coef_eval[1]))
+    # return model
+    return model
 
 
 cnn_static = functools.partial(cnn, train_embedding=0)
@@ -111,18 +119,24 @@ cnn_rand = functools.partial(cnn, train_embedding=2)
 if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("classification")
-    cnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
-               loss='categorical_crossentropy')
-    cnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
-                   loss='categorical_crossentropy')
-    cnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
-             loss='categorical_crossentropy')
+    model = cnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                       loss='categorical_crossentropy')
+    save_model(model, "cnn_static_classification")
+    model = cnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                           loss='categorical_crossentropy')
+    save_model(model, "cnn_non_static_classification")
+    model = cnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
+                     loss='categorical_crossentropy')
+    save_model(model, "cnn_rand_classification")
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("regression")
-    cnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
-               loss='mean_squared_error')
-    cnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
-                   loss='mean_squared_error')
-    cnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
-             loss='mean_squared_error')
+    model = cnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                       loss='mean_squared_error')
+    save_model(model, "cnn_static_regression")
+    model = cnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                           loss='mean_squared_error')
+    save_model(model, "cnn_non_static_regression")
+    model = cnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
+                     loss='mean_squared_error')
+    save_model(model, "cnn_rand_regression")

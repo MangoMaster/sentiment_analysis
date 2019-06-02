@@ -33,6 +33,12 @@ def load_data(texts_prefix, labels_prefix):
     return (inputs_train, outputs_train, inputs_test, outputs_test)
 
 
+def save_model(model, model_file_name):
+    model_file_path = os.path.join(
+        os.path.pardir, "models", model_file_name + ".h5")
+    model.save(model_file_path)
+
+
 def mlp(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     """
     Fully connected neural network.
@@ -73,25 +79,31 @@ def mlp(inputs_train, outputs_train, inputs_test, outputs_test, loss):
     coef_eval = coef(outputs_test, outputs_test_pred)
     print("Evaluation: acc - %.4f - fscore: %.4f - coef: %.4f - pvalue: %.4f" %
           (acc_eval, fscore_eval, coef_eval[0], coef_eval[1]))
+    # return model
+    return model
 
 
 if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "classification")
-    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss='categorical_crossentropy')
+    model = mlp(inputs_train, outputs_train, inputs_test, outputs_test,
+                loss='categorical_crossentropy')
+    save_model(model, "mlp_bags-of-words_classification")
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("bags-of-words", "regression")
-    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss='mean_squared_error')
+    model = mlp(inputs_train, outputs_train, inputs_test, outputs_test,
+                loss='mean_squared_error')
+    save_model(model, "mlp_bags-of-words_regression")
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "classification")
-    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss='categorical_crossentropy')
+    model = mlp(inputs_train, outputs_train, inputs_test, outputs_test,
+                loss='categorical_crossentropy')
+    save_model(model, "mlp_tf-idf_classification")
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("tf-idf", "regression")
-    mlp(inputs_train, outputs_train, inputs_test, outputs_test,
-        loss='mean_squared_error')
+    model = mlp(inputs_train, outputs_train, inputs_test, outputs_test,
+                loss='mean_squared_error')
+    save_model(model, "mlp_tf-idf_regression")

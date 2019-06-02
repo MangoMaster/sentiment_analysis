@@ -34,6 +34,12 @@ def load_data(labels_prefix):
     return (inputs_train, outputs_train, inputs_test, outputs_test)
 
 
+def save_model(model, model_file_name):
+    model_file_path = os.path.join(
+        os.path.pardir, "models", model_file_name + ".h5")
+    model.save(model_file_path)
+
+
 def rnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embedding):
     """
     Recurrent neural network.
@@ -92,6 +98,8 @@ def rnn(inputs_train, outputs_train, inputs_test, outputs_test, loss, train_embe
     coef_eval = coef(outputs_test, outputs_test_pred)
     print("Evaluation: acc - %.4f - fscore: %.4f - coef: %.4f - pvalue: %.4f" %
           (acc_eval, fscore_eval, coef_eval[0], coef_eval[1]))
+    # return model
+    return model
 
 
 rnn_static = functools.partial(rnn, train_embedding=0)
@@ -101,18 +109,24 @@ rnn_rand = functools.partial(rnn, train_embedding=2)
 if __name__ == "__main__":
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("classification")
-    rnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
-               loss='categorical_crossentropy')
-    rnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
-                   loss='categorical_crossentropy')
-    rnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
-             loss='categorical_crossentropy')
+    model = rnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                       loss='categorical_crossentropy')
+    save_model(model, "rnn_static_classification")
+    model = rnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                           loss='categorical_crossentropy')
+    save_model(model, "rnn_non_static_classification")
+    model = rnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
+                     loss='categorical_crossentropy')
+    save_model(model, "rnn_rand_classification")
 
     inputs_train, outputs_train, inputs_test, outputs_test = \
         load_data("regression")
-    rnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
-               loss='mean_squared_error')
-    rnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
-                   loss='mean_squared_error')
-    rnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
-             loss='mean_squared_error')
+    model = rnn_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                       loss='mean_squared_error')
+    save_model(model, "rnn_static_regression")
+    model = rnn_non_static(inputs_train, outputs_train, inputs_test, outputs_test,
+                           loss='mean_squared_error')
+    save_model(model, "rnn_non_static_regression")
+    model = rnn_rand(inputs_train, outputs_train, inputs_test, outputs_test,
+                     loss='mean_squared_error')
+    save_model(model, "rnn_rand_regression")
